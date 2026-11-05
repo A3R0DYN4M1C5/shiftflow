@@ -11,7 +11,7 @@ export function validate(c:Config):Record<string,string> {
  if(!/^\d{4}-\d{2}-\d{2}$/.test(c.date)||!Number.isFinite(Date.parse(c.date)))e.date='Choose a valid shift date.';
  for(const k of ['start','end'] as const)if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(c[k]))e[k]='Choose a valid time.';
  if(!Number.isFinite(c.safety)||c.safety<=0||c.safety>24)e.safety='Safety limit must be greater than 0 and at most 24 hours.';
- if(!duration(c)||duration(c)>c.safety*60)e.end=`Shift must be longer than zero and no more than ${c.safety} hours.`;
+ if(!e.start&&!e.end&&(!duration(c)||duration(c)>c.safety*60))e.end=`Shift must be longer than zero and no more than ${c.safety} hours.`;
  if(!Number.isFinite(c.normal)||c.normal<0||c.normal>100)e.normal='Productivity must be between 0 and 100%.';
  const sorted=[...c.breaks].sort((a,b)=>offset(a.start,c)-offset(b.start,c));
  sorted.forEach((b,i)=>{if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(b.start)||!Number.isInteger(b.duration)||b.duration<=0||offset(b.start,c)+b.duration>duration(c)||!Number.isFinite(b.productivity)||b.productivity<0||b.productivity>100)e[b.id]='Break must fit inside the shift, have a positive whole-minute duration and 0–100% productivity.';if(i&&offset(sorted[i-1].start,c)+sorted[i-1].duration>offset(b.start,c))e[b.id]='Breaks overlap. Adjust the start time or duration.';});return e;

@@ -22,3 +22,10 @@ describe('tracking and forecasts',()=>{
  it('updates corrections and allows above-goal forecasts',()=>{expect(track(c,p,{[ids[0]]:p.rows[0].target*2}).forecast).toBeCloseTo(c.goal*2);expect(track(c,p,{[ids[0]]:0}).variance).toBe(-p.rows[0].target);expect(track(c,p,{[ids[0]]:p.rows[0].target}).variance).toBe(0);});
  it('handles completion, failed recovery and zero remaining time',()=>{const a=Object.fromEntries(p.rows.map(r=>[r.id,0]));expect(track(c,p,a).recoverable).toBe(false);expect(track(c,p,a).required).toBe(Infinity);const b=Object.fromEntries(p.rows.map(r=>[r.id,r.target]));expect(track(c,p,b).complete).toBe(true);expect(track(c,p,b).required).toBe(0);expect(track(c,p,b).forecast).toBe(c.goal);});
 });
+
+describe('12-hour shift boundaries',()=>{
+ it('accepts 06:30 to 18:30 with a 12-hour limit',()=>{const c=config({start:'06:30',end:'18:30',safety:12});expect(validate(c)).toEqual({});expect(duration(c)).toBe(720);expect(plan(c).rows).toHaveLength(12);});
+ it('accepts an overnight 12-hour shift',()=>{const c=config({start:'18:30',end:'06:30',safety:12});expect(validate(c)).toEqual({});expect(duration(c)).toBe(720);});
+ it('rejects 12 hours 15 minutes at a 12-hour limit',()=>{expect(validate(config({start:'06:30',end:'18:45',safety:12})).end).toContain('12 hours');});
+ it('does not misreport malformed times as duration errors',()=>{expect(validate(config({start:'06:30:00',end:'18:30',safety:12}))).toEqual({start:'Choose a valid time.'});});
+});
