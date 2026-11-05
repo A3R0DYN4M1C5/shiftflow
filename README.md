@@ -59,3 +59,7 @@ The recommended Tailwind/shadcn styling stack is replaced by a compact custom CS
 - Browser checks verified actual entry, persistence after reload, baseline confirmation with preserved actuals, shift archiving and reopening, and desktop/tablet rendering.
 - The chart bundle exceeds Vite's default 500 kB warning threshold; it is compressed by production hosting. Future optimization can lazy-load charts.
 - Publication has not occurred. Source upload requires the user's approval of the private Sites destination.
+
+## GitHub Pages
+
+The deploy workflow runs tests, builds Vite, and publishes only `dist/` on pushes to `main`. In repository Settings > Pages, choose **GitHub Actions** as the source. Do not publish the repository root directly: browsers cannot execute the TypeScript/TSX source. Relative asset URLs in `vite.config.ts` support the `/shiftflow/` project path and custom domains.
